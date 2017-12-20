@@ -14,10 +14,10 @@ public struct GitHub {
         client = Client(token: token)
     }
 
-    public func latestRelease(project: String) throws -> String? {
+    public func latestRelease(owner: String, project: String) throws -> String? {
         let query = """
             query {
-              repository(owner: "mindbody", name: "\(project)") {
+              repository(owner: "\(owner)", name: "\(project)") {
                 releases(last: 1) {
                   nodes {
                     name
@@ -38,10 +38,10 @@ public struct GitHub {
         return repository.releases?.nodes?.first?.tag?.name
     }
 
-    public func openPullRequests(project: String, limit: Int = 100) throws -> [PullRequest] {
+    public func openPullRequests(owner: String, project: String, limit: Int = 100) throws -> [PullRequest] {
         let query = """
             query {
-                repository(owner: "mindbody", name: "\(project)") {
+                repository(owner: "\(owner)", name: "\(project)") {
                     pullRequests(states: [OPEN], first: \(limit)) {
                         nodes {
                             createdAt
