@@ -14,6 +14,10 @@ public struct GitHub {
         client = Client(token: token)
     }
 
+    public func submit(query: String) throws -> Response {
+        return try client.submit(request: Request(query: query))
+    }
+
     public func latestRelease(owner: String, project: String) throws -> String? {
         let query = """
             query {
@@ -31,7 +35,7 @@ public struct GitHub {
             }
             """
 
-        let response = try client.submitRequest(request: client.makeRequest(query: query))
+        let response = try submit(query: query)
         guard let repository = response.data.repository else {
             throw GitHubError.repositoryNotFound(name: project)
         }
@@ -53,7 +57,7 @@ public struct GitHub {
             }
             """
 
-        let response = try client.submitRequest(request: client.makeRequest(query: query))
+        let response = try submit(query: query)
         guard let repository = response.data.repository else {
             throw GitHubError.repositoryNotFound(name: project)
         }

@@ -7,33 +7,33 @@
 
 import Foundation
 
-struct Request: Codable {
+public struct Request: Codable {
     let query: String
 }
 
-struct Response: Codable {
-    let data: Query
+public struct Response: Codable {
+    let data: QueryResult
 }
 
-struct Query: Codable {
+public struct QueryResult: Codable {
     let repository: Repository?
 }
 
-struct Repository: Codable {
+public struct Repository: Codable {
     let pullRequests: PullRequestConnection?
     let releases: ReleaseConnection?
 }
 
-struct ReleaseConnection: Codable {
+public struct ReleaseConnection: Codable {
     let nodes: [Release]?
 }
 
-struct Release: Codable {
+public struct Release: Codable {
     let name: String?
     let tag: Reference?
 }
 
-struct PullRequestConnection: Codable {
+public struct PullRequestConnection: Codable {
     let nodes: [PullRequest]?
 }
 
@@ -45,7 +45,7 @@ public struct PullRequest: Codable {
     let title: String?
 }
 
-struct Reference: Codable {
+public struct Reference: Codable {
     let id: String
     let name: String
 }

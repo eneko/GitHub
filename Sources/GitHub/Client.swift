@@ -7,44 +7,64 @@
 
 import Foundation
 
+
 struct Client {
 
     let token: String
 
-    func makeRequest(query: String) throws -> URLRequest {
+    typealias CompletionBlock = (_ response: Response?, _ error: Error?) -> Void
+
+    func submit(request: Request) throws -> Response {
+        let urlRequest = try makeURLRequest(with: request)
+        return try submit(urlRequest: urlRequest)
+    }
+
+    func makeURLRequest(with request: Request) throws -> URLRequest {
         guard let url = URL(string: "https://api.github.com/graphql") else {
             fatalError("Failed to make url")
         }
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("bearer \(token)", forHTTPHeaderField: "Authorization")
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "POST"
+        urlRequest.setValue("bearer \(token)", forHTTPHeaderField: "Authorization")
 
         let encoder = JSONEncoder()
-        request.httpBody = try encoder.encode(Request(query: query))
+        urlRequest.httpBody = try encoder.encode(request)
 
-        return request
+        return urlRequest
     }
 
-    func submitRequest(request: URLRequest) throws -> Response {
-        var responseData: Data?
+    func submit(urlRequest: URLRequest) throws -> Response {
+        var responseData: Response?
         let semaphore = DispatchSemaphore(value: 0)
-        let session = URLSession(configuration: URLSessionConfiguration.default, delegate: nil, delegateQueue: OperationQueue())
-        let task = session.dataTask(with: request) { (data, response, error) in
-            responseData = data
+        submit(urlRequest: urlRequest) { (response, error) in
+            responseData = response
             semaphore.signal()
         }
-        task.resume()
-
         if semaphore.wait(timeout: DispatchTime.now() + 30) == .timedOut {
             throw GitHubError.requestTimedOut
         }
-        guard let data = responseData else {
+        guard let response = responseData else {
             throw GitHubError.invalidResponse
         }
+        return response
+    }
 
-        let decoder = JSONDecoder()
-        return try decoder.decode(Response.self, from: data)
+    func submit(urlRequest: URLRequest, completion: @escaping CompletionBlock) {
+        let session = URLSession(configuration: URLSessionConfiguration.default, delegate: nil, delegateQueue: OperationQueue())
+        let task = session.dataTask(with: urlRequest) { (data, response, error) in
+            guard let data = data else {
+                completion(nil, error)
+                return
+            }
+            let decoder = JSONDecoder()
+            guard let response = try? decoder.decode(Response.self, from: data) else {
+                completion(nil, GitHubError.invalidResponse)
+                return
+            }
+            completion(response, nil)
+        }
+        task.resume()
     }
 
 }
