@@ -1,5 +1,5 @@
 ![Release](https://img.shields.io/github/release/eneko/github.svg)
-![Swift 4.1](https://img.shields.io/badge/Swift-4.1-orange.svg)
+![Swift 4.2](https://img.shields.io/badge/Swift-4.2-orange.svg)
 [![Build Status](https://travis-ci.org/eneko/GitHub.svg?branch=master)](https://travis-ci.org/eneko/GitHub)
 [![Swift Package Manager Compatible](https://img.shields.io/badge/spm-compatible-brightgreen.svg)](https://swift.org/package-manager)
 ![Linux Compatible](https://img.shields.io/badge/linux-compatible%20🐧-brightgreen.svg)
